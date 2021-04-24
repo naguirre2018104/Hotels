@@ -7,7 +7,7 @@ var port = 3000;
 mongoose.Promise = global.Promise;
 mongoose.set("useFindAndModify", false);
 mongoose
-    .connect("mongodb://localhost:27017/dbgreattrip2021", {
+    .connect("mongodb://localhost:27017/dbhotelmanagement2021", {
         useNewUrlParser: true,
         useUnifiedTopology: true,
     })
