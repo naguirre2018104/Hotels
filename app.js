@@ -4,6 +4,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
+const userRoutes = require("./routes/user-route");
+
 let app = express();
 
 app.use(cors({origin: true, credentials: true}));
@@ -21,10 +23,6 @@ app.use((req, res, next) => {
     next();
 });
 
-app.get("/prueba",prueba);
-
-function prueba(req,res){
-    res.send({ok: true, message: "Funcionando"});
-}
+app.use("/api",userRoutes);
 
 module.exports = app;

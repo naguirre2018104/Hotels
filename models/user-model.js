@@ -9,6 +9,7 @@ var userSchema = Schema({
     email: String,
     name: String,
     lastname: String,
+    image: String,
     role: {type: String, default: "ROLE_CLIENT"},
     reservations: [],
     invoices: [],

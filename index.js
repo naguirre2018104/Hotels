@@ -2,7 +2,8 @@
 
 var mongoose = require("mongoose");
 var app = require("./app");
-var port = 3000;
+var port = 3200;
+var admin = require("./controllers/user-controller");
 
 mongoose.Promise = global.Promise;
 mongoose.set("useFindAndModify", false);
@@ -12,6 +13,7 @@ mongoose
         useUnifiedTopology: true,
     })
     .then(() => {
+        admin.userAdmin();
         console.log("Conectado a la BD");
         app.listen(port, () => {
             console.log("Servidor de express corriendo");
