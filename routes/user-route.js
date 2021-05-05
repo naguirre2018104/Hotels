@@ -11,5 +11,7 @@ api.post("/register",userController.register);
 api.post("/login",userController.login);
 api.put("/updateUser/:id",mdAuth.ensureUser,userController.updateUser);
 api.put("/removeUser/:id",mdAuth.ensureUser,userController.removeUser);
+api.get("/getUsers",[mdAuth.ensureUser,mdAuth.ensureAdmin],userController.getUsers);
+api.get("/getUser/:id",[mdAuth.ensureUser,mdAuth.ensureAdmin],userController.getUser);
 
 module.exports = api;

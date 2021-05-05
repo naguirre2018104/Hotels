@@ -202,11 +202,39 @@ function removeUser(req, res){
     }
 }
 
+function getUsers(req,res){
+    User.find({}).exec((err,users)=>{ // Agregar el populate al avanzar.
+        if(err){
+            return res.status(500).send({message: "Error al obtener usuarios"});
+        }else if(users){
+            return res.send({message: "Usuarios", users});
+        }else{
+            return res.send({message: "No hay usuarios"});
+        }
+    })
+}
+
+function getUser(req,res){
+    let userId = req.params.id;
+
+    User.findById({_id: userId}).exec((err,user)=>{
+        if(err){
+            return res.status(500).send({message: "Error al buscar usuario"});
+        }else if(user){
+            return res.send({message: "Usuario encontrado", user});
+        }else{
+            return res.send({message: "Usuario inexistente"});
+        }
+    })
+}
+
 module.exports = {
     prueba,
     userAdmin,
     register,
     login,
     updateUser,
-    removeUser
+    removeUser,
+    getUsers,
+    getUser
 }
