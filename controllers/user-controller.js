@@ -228,6 +228,47 @@ function getUser(req,res){
     })
 }
 
+function createUserByAdmin(req,res){
+    var user = new User();
+    var params = req.body;
+
+    if(params.name && params.username && params.password && params.email && params.role){
+        User.findOne({username: params.username},(err,userFinded)=>{
+            if(err){
+                return res.status(500).send({message: "Error al buscar usuario"});
+            }else if(userFinded){
+                return res.send({message: "Nombre de usuario ya utilizado"});
+            }else{
+                bcrypt.hash(params.password,null,null,(err,passwordHashed)=>{
+                    if(err){
+                        return res.status(500).send({message: "Error al encriptar contraseña"});
+                    }else if(passwordHashed){
+                        user.password = passwordHashed;
+                        user.name = params.name;
+                        user.lastname = params.lastname;
+                        user.username = params.username;
+                        user.email = params.email;
+                        user.role = params.role;
+                        user.save((err,userSaved)=>{
+                            if(err){
+                                return res.status(500).send({message: "Error al guardar usuario"});
+                            }else if(userSaved){
+                                return res.send({message: "Usuario agregado exitosamente", userSaved});
+                            }else{
+                                return res.status(500).send({message: "No se guardó el usuario"});
+                            }
+                        })
+                    }else{
+                        return res.status(401).send({message: "Contraseña no encriptada"});
+                    }
+                })
+            }
+        })
+    }else{
+        return res.send({message: "Ingrese los datos mínimos"});
+    }
+}
+
 module.exports = {
     prueba,
     userAdmin,
@@ -236,5 +277,6 @@ module.exports = {
     updateUser,
     removeUser,
     getUsers,
-    getUser
+    getUser,
+    createUserByAdmin
 }

@@ -12,8 +12,7 @@ var userSchema = Schema({
     image: String,
     role: {type: String, default: "ROLE_CLIENT"},
     reservations: [],
-    invoices: [],
-    history: []
+    history_hotels: [{type: Schema.ObjectId, ref: "hotel"}]
 });
 
 module.exports = mongoose.model("user",userSchema);
