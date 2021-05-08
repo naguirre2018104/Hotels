@@ -7,7 +7,7 @@ var hotelSchema = Schema({
     user_admin_hotel: { type: Schema.ObjectId, ref: "user" },
     name: String,
     address: String,
-    count_reservations: Number,
+    count_reservations: {type: Number, default: 0},
     country: String,
     image: String,
     rooms: [{ type: Schema.ObjectId, ref: "room" }],

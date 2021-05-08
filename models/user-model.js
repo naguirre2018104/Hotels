@@ -11,7 +11,7 @@ var userSchema = Schema({
     lastname: String,
     image: String,
     role: {type: String, default: "ROLE_CLIENT"},
-    reservations: [],
+    reservations: [{type: Schema.ObjectId, ref: "reservation"}],
     history_hotels: [{type: Schema.ObjectId, ref: "hotel"}]
 });
 
