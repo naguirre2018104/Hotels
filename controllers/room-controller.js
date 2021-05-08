@@ -96,8 +96,87 @@ function getRoom(req, res) {
     }
 }
 
+function updateRoom(req, res) {
+    let roomId = req.params.idR;
+    let update = req.body;
+
+    if (!roomId) {
+        return res
+            .status(403)
+            .send({ ok: false, message: "Ingrese los parametros" });
+    } else {
+        Room.findByIdAndUpdate(
+            roomId,
+            update, { new: true },
+            (err, roomUpdated) => {
+                if (err) {
+                    return res.status(500).send({ ok: false, message: "Error general" });
+                } else if (roomUpdated) {
+                    return res.send({
+                        ok: false,
+                        message: "Habitacion actualizada",
+                        roomUpdated,
+                    });
+                } else {
+                    return res.status(404).send({
+                        ok: false,
+                        message: "Eror, no se logro actualizar la habitacion",
+                    });
+                }
+            }
+        );
+    }
+}
+
+function deleteRoom(req, res) {
+    let roomId = req.params.idR;
+
+    if (!roomId) {
+        return res
+            .status(403)
+            .send({ ok: false, message: "Ingresa los datos necesarios" });
+    } else {
+        Room.findById(roomId, (err, roomFound) => {
+            if (err) {
+                return res.status(500).send({ ok: false, message: "Error general" });
+            } else if (roomFound) {
+                if (!roomFound.available) {
+                    return res.status(403).send({
+                        ok: false,
+                        message: "No puede eliminar esta habitacion, esta ocupada",
+                    });
+                } else {
+                    Room.findByIdAndDelete(roomId, (err, roomRemoved) => {
+                        if (err) {
+                            return res
+                                .status(500)
+                                .send({ ok: false, message: "Error general" });
+                        } else if (roomRemoved) {
+                            return res.send({
+                                ok: true,
+                                message: "Habitacion eliminada correctamente",
+                            });
+                        } else {
+                            return res.status(400).send({
+                                ok: false,
+                                message: "No se logro eliminar la habitacion",
+                            });
+                        }
+                    });
+                }
+            } else {
+                return res
+                    .status(404)
+                    .send({ ok: false, message: "No existe la habitacion" });
+            }
+        });
+    }
+}
+
 module.exports = {
     createRoom,
     getRooms,
     getRoom,
+    updateRoom,
+    deleteRoom,
 };

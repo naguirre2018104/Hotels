@@ -18,5 +18,13 @@ api.post(
     "/getRoom/:idR", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
     roomController.getRoom
 );
+api.post(
+    "/updateRoom/:idR", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
+    roomController.updateRoom
+);
+api.delete(
+    "/deleteRoom/:idR", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
+    roomController.deleteRoom
+);
 
 module.exports = api;
