@@ -1,13 +1,12 @@
-"use strict"
+"use strict";
 
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
 var roomSchema = Schema({
     name: String,
-    available: Boolean,
+    available: { type: Boolean, default: true },
     price_for_day: Number,
-    available_day: Date
 });
 
-module.exports = mongoose.model("room",roomSchema);
+module.exports = mongoose.model("room", roomSchema);
