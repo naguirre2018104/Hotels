@@ -186,21 +186,34 @@ function cancelReservation(req,res){
 
 function getReservationsByHotelAdmin(req,res){
     var userId = req.user.sub;
-    Hotel.find({user_admin: userId}).exec((err,hotelFinded)=>{
+    User.findById(userId,(err,userFinded)=>{
         if(err){
-            return res.status(500).send({message: "Error al buscar administrador en hoteles"});
-        }else if(hotelFinded){
-            /* Reservation.find({hotel: hotelId},(err,reservations)=>{
+            return res.status(500).send({message: "Error al verificar usuario"});
+        }else if(userFinded){
+            Hotel.aggregate([{
+                $match: {user_admin: userId}
+            }]).exec((err,hotelFinded)=>{
+                var hotelId = hotelFinded[0]._id;
                 if(err){
-                    return res.status(500).send({message: "Error al obtener reservaciones del hotel"});
-                }else if(reservations){
-                    return res.send({message: "Reservaciones del hotel: ", reservations});
+                    return res.status(500).send({message: "Error al buscar hotel"});
+                }else if(hotelFinded && hotelFinded[0]._id != undefined){
+                    Reservation.aggregate([{
+                        $match: {hotel: hotelId}
+                    }]).exec((err,reservations)=>{
+                        if(err){
+                            return res.status(500).send({message: "Error al obtener reservaciones"});
+                        }else if(reservations){
+                            return res.send({message: "Todas las reservaciones:", reservations});
+                        }else{
+                            return res.send({message: "No hay reservaciones en este hotel"});
+                        }
+                    })
                 }else{
-                    return res.status(404).send({message: "No hay reservaciones en este hotel"});
+                    return res.status(404).send({message: "No es administrador de ningún hotel"});
                 }
-            }) */
+            })
         }else{
-            return res.status(404).send({message: "Su usuario no es administrador de ningún hotel"});
+            return res.status(404).send({message: "Usuario inexistente"});
         }
     })
 }
