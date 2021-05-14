@@ -14,7 +14,7 @@ const serviceRoutes = require("./routes/service-route");
 
 let app = express();
 
-app.use(cors({origin: true, credentials: true}));
+app.use(cors({ origin: true, credentials: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -29,12 +29,12 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use("/api",userRoutes);
-app.use("/api",eventRoutes);
-app.use("/api",hotelRoutes);
-app.use("/api",invoiceRoutes);
-app.use("/api",reservationRoutes);
-app.use("/api",roomRoutes);
-app.use("/api",serviceRoutes);
+app.use("/api", userRoutes);
+app.use("/api", eventRoutes);
+app.use("/api", hotelRoutes);
+app.use("/api", invoiceRoutes);
+app.use("/api", reservationRoutes);
+app.use("/api", roomRoutes);
+app.use("/api", serviceRoutes);
 
 module.exports = app;
