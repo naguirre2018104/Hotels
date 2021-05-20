@@ -4,7 +4,9 @@ const express = require("express");
 const eventController = require("../controllers/event-controller");
 const mdAuth = require("../middlewares/authenticated");
 
-let api = express.Router();
+var api = express.Router();
+
+api.get("/pruebaEvent", eventController.prueba);
 
 api.post(
     "/createEvent", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
