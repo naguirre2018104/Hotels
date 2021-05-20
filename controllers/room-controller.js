@@ -96,6 +96,28 @@ function getRoom(req, res) {
     }
 }
 
+function getRoomByAdminHotel(req,res){
+    let roomId = req.params.idR;
+
+    if (!roomId) {
+        return res.status(400).send({ ok: false, message: "Error, no RoomID" });
+    } else {
+        Room.findById(roomId).exec((err, rooms) => {
+            if (err) {
+                return res.status(500).send({ ok: false, message: "Error general" });
+            } else if (rooms) {
+                return res.send({
+                    ok: true,
+                    message: "Habitaciones encontadas",
+                    rooms,
+                });
+            } else {
+                return res.status(404).send({ ok: false, message: "No habitaciones" });
+            }
+        });
+    }
+}
+
 function updateRoom(req, res) {
     let roomId = req.params.idR;
     let update = req.body;
@@ -179,4 +201,5 @@ module.exports = {
     getRoom,
     updateRoom,
     deleteRoom,
+    getRoomByAdminHotel
 };

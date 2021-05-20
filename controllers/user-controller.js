@@ -296,6 +296,20 @@ function getUser(req, res) {
     });
 }
 
+function getUserByHotelAdmin(req, res) {
+    let userId = req.params.id;
+
+    User.findById({ _id: userId }).exec((err, user) => {
+        if (err) {
+            return res.status(500).send({ message: "Error al buscar usuario" });
+        } else if (user) {
+            return res.send({ message: "Usuario encontrado", user });
+        } else {
+            return res.send({ message: "Usuario inexistente" });
+        }
+    });
+}
+
 function createUserByAdmin(req, res) {
     var user = new User();
     var params = req.body;
@@ -411,4 +425,5 @@ module.exports = {
     getUser,
     createUserByAdmin,
     getManagements,
+    getUserByHotelAdmin
 };

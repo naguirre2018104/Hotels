@@ -11,7 +11,8 @@ var reservationSchema = Schema({
     end_date: Date,
     services: [{type: Schema.ObjectId, ref: "service"}],
     events: [{type: Schema.ObjectId, ref: "event"}],
-    total_price: Number
+    total_price: Number,
+    status: {type: Boolean, default: true}
 });
 
 module.exports = mongoose.model("reservation",reservationSchema);

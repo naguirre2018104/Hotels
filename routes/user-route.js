@@ -27,5 +27,6 @@ api.get(
     "/getManagements", [mdAuth.ensureUser, mdAuth.ensureAdmin],
     userController.getManagements
 );
+api.get("/getUserByHotelAdmin/:id",[mdAuth.ensureUser,mdAuth.ensureAdminHotel],userController.getUserByHotelAdmin);
 
 module.exports = api;

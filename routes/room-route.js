@@ -14,9 +14,13 @@ api.get(
     "/getRooms", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
     roomController.getRooms
 );
-api.post(
+api.get(
     "/getRoom/:idR", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
     roomController.getRoom
+);
+api.get(
+    "/getRoomByAdminHotel/:idR", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
+    roomController.getRoomByAdminHotel
 );
 api.post(
     "/updateRoom/:idR", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],

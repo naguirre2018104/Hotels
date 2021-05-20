@@ -11,8 +11,8 @@ api.post(
     hotelController.createHotel
 );
 api.get("/getHotels", hotelController.getHotels);
-api.post(
-    "/getHotel/:idH", [mdAuth.ensureUser, mdAuth.ensureAdmin],
+api.get(
+    "/getHotel/:idH", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
     hotelController.getHotel
 );
 api.post(
