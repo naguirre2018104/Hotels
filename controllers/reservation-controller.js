@@ -191,7 +191,7 @@ function getReservationsByHotelAdmin(req,res){
             return res.status(500).send({message: "Error al verificar usuario"});
         }else if(userFinded){
             Hotel.aggregate([{
-                $match: {user_admin: userId}
+                $match: {user_admin_hotel: userId}
             }]).exec((err,hotelFinded)=>{
                 var hotelId = hotelFinded[0]._id;
                 if(err){
