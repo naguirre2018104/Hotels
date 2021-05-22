@@ -174,21 +174,48 @@ function deleteHotel(req, res) {
     }
 }
 
-function getHotelByHotelAdmin(req,res){
-    var userId = req.user.sub;
+function getHotelsnames(req, res) {
+    Hotel.find().exec((err, hotels) => {
+        if (err) {
+            return res.json({ ok: false, message: "Error general" });
+        } else if (hotels) {
+            var hotelsGraphic = [];
 
-    Hotel.aggregate([{
-        $match: {user_admin_hotel: userId}
-    }]).exec((err,hotelFinded)=>{
-        if(err){
-            return res.status(500).send({message: "Error al buscar hotel"});
-        }else if(hotelFinded){
-            console.log(hotelFinded[0]);
-            return res.send({message: "Hotel encontrado", hotelFinded});
-        }else{
-            return res.status(404).send({message: "No existe el hotel"});
+            hotels.forEach((hotelItem) => {
+                hotelsGraphic.push({
+                    hotelName: hotelItem.name,
+                    count_reservations: hotelItem.count_reservations,
+                });
+            });
+
+            return res.json({ ok: true, message: "Datos hotel", hotelsGraphic });
+        } else {
+            return res.json({ ok: false, message: "No existen hoteles" });
         }
-    })
+    });
+}
+
+function getHotelBydAdminHotelID(req, res) {
+    let userAdminH = req.user.sub;
+
+    if (userAdminH) {
+        Hotel.aggregate([{$match: {user_admin_hotel: userAdminH}}]).exec((err, hotel) => {
+            if (err) {
+                return res.json({ ok: false, message: "Error general" });
+            } else if (hotel) {
+                return res.send({
+                    ok: true,
+                    message: "Hotel del usuario admin",
+                    hotel
+                });
+            } else {
+                console.log(hotel);
+                return res.json({ ok: false, message: "No existen hoteles" });
+            }
+        });
+    } else {
+        return res.json({ ok: false, message: "Ingrese los datos" });
+    }
 }
 
 module.exports = {
@@ -197,5 +224,6 @@ module.exports = {
     getHotel,
     updateHotel,
     deleteHotel,
-    getHotelByHotelAdmin
+    getHotelsnames,
+    getHotelBydAdminHotelID,
 };

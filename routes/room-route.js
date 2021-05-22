@@ -30,5 +30,6 @@ api.delete(
     "/deleteRoom/:idR", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
     roomController.deleteRoom
 );
+api.get("/getRoomsByHotelAdmin",[mdAuth.ensureUser, mdAuth.ensureAdminHotel],roomController.getRoomsByHotelAdmin);
 
 module.exports = api;

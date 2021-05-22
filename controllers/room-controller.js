@@ -21,7 +21,7 @@ function createRoom(req, res) {
                     .status(400)
                     .send({ ok: false, message: "Ya existe esta habitacion" });
             } else {
-                room.name = params.name.toLowerCase();
+                room.name = params.name;
                 room.price_for_day = params.price_for_day;
 
                 room.save((err, roomSaved) => {
@@ -195,11 +195,26 @@ function deleteRoom(req, res) {
     }
 }
 
+function getRoomsByHotelAdmin(req,res){
+    var hotelAdmiId = req.user.sub;
+    Hotel.aggregate([{$match: {user_admin_hotel: hotelAdmiId}}]).exec((err,hotelFinded)=>{
+        if(err){
+            return res.status(500).send({message: "Error al buscar hotel"});
+        }else if(hotelFinded){
+            var rooms = hotelFinded[0].rooms;
+            return res.send({message: "Habitaciones del hotel", rooms});
+        }else{
+            return res.status(404).send({message: "No es administrador de ningún hotel"});
+        }
+    })
+}
+
 module.exports = {
     createRoom,
     getRooms,
     getRoom,
     updateRoom,
     deleteRoom,
-    getRoomByAdminHotel
+    getRoomByAdminHotel,
+    getRoomsByHotelAdmin
 };
