@@ -23,5 +23,13 @@ api.delete(
     "/:idU/deleteHotel/:idH", [mdAuth.ensureUser, mdAuth.ensureAdmin],
     hotelController.deleteHotel
 );
+api.get(
+    "/getHotelsnames", [mdAuth.ensureUser, mdAuth.ensureAdminOrAdminHotel],
+    hotelController.getHotelsnames
+);
+api.get(
+    "/getHotelBydAdminHotelID", [mdAuth.ensureUser, mdAuth.ensureAdminOrAdminHotel],
+    hotelController.getHotelBydAdminHotelID
+);
 
 module.exports = api;

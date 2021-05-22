@@ -174,10 +174,69 @@ function deleteHotel(req, res) {
     }
 }
 
+function getHotelsnames(req, res) {
+    Hotel.find().exec((err, hotels) => {
+        if (err) {
+            return res.json({ ok: false, message: "Error general" });
+        } else if (hotels) {
+            var hotelsGraphic = [];
+
+            hotels.forEach((hotelItem) => {
+                hotelsGraphic.push({
+                    hotelName: hotelItem.name,
+                    count_reservations: hotelItem.count_reservations,
+                });
+            });
+
+            return res.json({ ok: true, message: "Datos hotel", hotelsGraphic });
+        } else {
+            return res.json({ ok: false, message: "No existen hoteles" });
+        }
+    });
+}
+
+function getHotelBydAdminHotelID(req, res) {
+    let userAdminH = req.user.sub;
+
+    if (userAdminH) {
+        Hotel.findOne({ user_admin_hotel: userAdminH }).exec((err, hotel) => {
+            if (err) {
+                return res.json({ ok: false, message: "Error general" });
+            } else if (hotel) {
+                return res.json({
+                    ok: true,
+                    message: "Hotel del usuario admin",
+                    hotel,
+                });
+            } else {
+                return res.json({ ok: false, message: "No existen hoteles" });
+            }
+        });
+    } else {
+        return res.json({ ok: false, message: "Ingrese los datos" });
+    }
+    // var userId = req.user.sub;
+
+    // Hotel.aggregate([{
+    //     $match: { user_admin_hotel: userId },
+    // }, ]).exec((err, hotelFinded) => {
+    //     if (err) {
+    //         return res.status(500).send({ message: "Error al buscar hotel" });
+    //     } else if (hotelFinded) {
+    //         console.log(hotelFinded[0]);
+    //         return res.send({ message: "Hotel encontrado", hotelFinded });
+    //     } else {
+    //         return res.status(404).send({ message: "No existe el hotel" });
+    //     }
+    // });
+}
+
 module.exports = {
     createHotel,
     getHotels,
     getHotel,
     updateHotel,
     deleteHotel,
+    getHotelsnames,
+    getHotelBydAdminHotelID,
 };
