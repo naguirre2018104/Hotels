@@ -6,10 +6,8 @@ const mdAuth = require("../middlewares/authenticated");
 
 var api = express.Router();
 
-api.get("/pruebaService", serviceController.prueba);
-
 api.post(
-    "/createService", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
+    "/createService/:idH", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
     serviceController.createServices
 );
 
@@ -32,7 +30,13 @@ api.delete(
     "/deleteService/:id", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
     serviceController.deleteService
 );
-api.put("/:idR/setServiceReservation/:idS", [mdAuth.ensureUser], serviceController.setServiceReservation);
-api.put("/createServiceByHotelAdmin",[mdAuth.ensureUser,mdAuth.ensureAdminHotel],serviceController.createServiceByHotelAdmin);
+api.put(
+    "/:idR/setServiceReservation/:idS", [mdAuth.ensureUser],
+    serviceController.setServiceReservation
+);
+api.put(
+    "/createServiceByHotelAdmin", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
+    serviceController.createServiceByHotelAdmin
+);
 
 module.exports = api;

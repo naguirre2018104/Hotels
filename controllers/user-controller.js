@@ -112,10 +112,38 @@ function login(req, res) {
                                 .send({ message: "Error al comparar contraseñas" });
                         } else if (checkPassword) {
                             if (params.gettoken) {
-                                return res.send({
-                                    token: jwt.createToken(userFinded),
-                                    userFinded,
-                                });
+                                if (userFinded.role == "ROLE_HOTEL") {
+                                    Hotel.findOne({ user_admin_hotel: userFinded._id }).exec(
+                                        (err, hotelFound) => {
+                                            if (err) {
+                                                return res
+                                                    .status(500)
+                                                    .send({ message: "Error al buscar hotel" });
+                                            } else if (hotelFound) {
+                                                return res.send({
+                                                    token: jwt.createToken(userFinded),
+                                                    userFinded,
+                                                    hotelFound,
+                                                });
+                                            } else {
+                                                return res.send({
+                                                    ok: false,
+                                                    message: "No tiene autorizado iniciar sesion",
+                                                });
+                                            }
+                                        }
+                                    );
+                                } else if (userFinded.role == "ROLE_ADMIN") {
+                                    return res.send({
+                                        token: jwt.createToken(userFinded),
+                                        userFinded,
+                                    });
+                                } else {
+                                    return res.send({
+                                        token: jwt.createToken(userFinded),
+                                        userFinded,
+                                    });
+                                }
                             } else {
                                 return res.send({ message: "Usuario logeado", userFinded });
                             }
@@ -425,5 +453,5 @@ module.exports = {
     getUser,
     createUserByAdmin,
     getManagements,
-    getUserByHotelAdmin
+    getUserByHotelAdmin,
 };
