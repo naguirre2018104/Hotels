@@ -225,7 +225,7 @@ function createServiceByHotelAdmin(req,res){
 
     if (params.name && params.price_service) {
         Hotel.aggregate([{
-            $match: {user_admin: userId}
+            $match: {user_admin_hotel: userId}
         }]).exec((err,hotelFinded)=>{
             if(err){
                 return res.status(500).send({message: "Error al buscar hotel"});
@@ -322,63 +322,3 @@ module.exports = {
     setServiceReservation,
     createServiceByHotelAdmin
 };
-/*
-if(hotelFinded[0].services != []){
-    if(confirmation == true){
-        console.log(hotelFinded[0].services);
-        return res.send({message: "Este servicio ya existe en el hotel"});
-    }else{
-        service.name = params.name.toLowerCase();
-        service.price_service = params.price_service;
-        service.save((err, serviceSaved) => {
-            if (err) {
-                console.log(err);
-                return res
-                    .status(500)
-                    .send({ ok: false, message: "Error general" });
-            } else if (serviceSaved) {
-                var serviceId = serviceSaved._id;
-                Hotel.findByIdAndUpdate(hotelId,{$push: {services: serviceId}},{new:true},(err,hotelUpdated)=>{
-                    if(err){
-                        return res.status(500).send({message: "Error al agregar servicio"});
-                    }else if(hotelUpdated){
-                        return res.send({message: "Servicio agregado exitosamente",hotelUpdated});
-                    }else{
-                        return res.status(500).send({message: "No se agregó el servicio al hotel"});
-                    }
-                })
-            } else {
-                return res.status(404).send({
-                    ok: false,
-                    message: "No se guardo correctamente el servicio",
-                });
-            }
-        })
-    }
-}else{
-    console.log("Lo hizo aquí");
-    service.name = params.name.toLowerCase();
-    service.price_service = params.price_service;
-    service.save((err, serviceSaved) => {
-    if (err) {
-        return res
-            .status(500)
-            .send({ ok: false, message: "Error general" });
-    } else if (serviceSaved) {
-        Hotel.findByIdAndUpdate(hotelId,{$push: {services: serviceSaved._id}},{new:true},(err,hotelUpdated)=>{
-            if(err){
-                return res.status(500).send({message: "Error al agregar servicio"});
-            }else if(hotelUpdated){
-                return res.send({message: "Servicio agregado exitosamente",hotelUpdated});
-            }else{
-                return res.status(500).send({message: "No se agregó el servicio al hotel"});
-            }
-        })
-    } else {
-         return res.status(404).send({
-            ok: false,
-            message: "No se guardo correctamente el servicio",
-        });
-    }
-    }); 
-}*/

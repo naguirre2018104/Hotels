@@ -215,20 +215,6 @@ function getHotelBydAdminHotelID(req, res) {
     } else {
         return res.json({ ok: false, message: "Ingrese los datos" });
     }
-    // var userId = req.user.sub;
-
-    // Hotel.aggregate([{
-    //     $match: { user_admin_hotel: userId },
-    // }, ]).exec((err, hotelFinded) => {
-    //     if (err) {
-    //         return res.status(500).send({ message: "Error al buscar hotel" });
-    //     } else if (hotelFinded) {
-    //         console.log(hotelFinded[0]);
-    //         return res.send({ message: "Hotel encontrado", hotelFinded });
-    //     } else {
-    //         return res.status(404).send({ message: "No existe el hotel" });
-    //     }
-    // });
 }
 
 module.exports = {
