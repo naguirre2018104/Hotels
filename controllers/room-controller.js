@@ -2,6 +2,8 @@
 
 const Room = require("./../models/room-model");
 const Hotel = require("./../models/hotel-model");
+const User = require("./../models/user-model");
+const bcrypt = require("bcrypt-nodejs");
 
 function createRoom(req, res) {
     let room = new Room();
@@ -151,45 +153,93 @@ function updateRoom(req, res) {
 }
 
 function deleteRoom(req, res) {
-    let roomId = req.params.idR;
+    var roomId = req.params.idR;
+    var params = req.body;
+    var userId = req.user.sub;
 
-    if (!roomId) {
+    if (!roomId || !params.password) {
         return res
             .status(403)
-            .send({ ok: false, message: "Ingresa los datos necesarios" });
+            .send({ ok: false, message: "Ingresa los datos necesarios (contraseña)" });
     } else {
         Room.findById(roomId, (err, roomFound) => {
             if (err) {
                 return res.status(500).send({ ok: false, message: "Error general" });
             } else if (roomFound) {
                 if (!roomFound.available) {
-                    return res.status(403).send({
+                    return res.send({
                         ok: false,
                         message: "No puede eliminar esta habitacion, esta ocupada",
                     });
                 } else {
-                    Room.findByIdAndDelete(roomId, (err, roomRemoved) => {
-                        if (err) {
-                            return res
-                                .status(500)
-                                .send({ ok: false, message: "Error general" });
-                        } else if (roomRemoved) {
-                            return res.send({
-                                ok: true,
-                                message: "Habitacion eliminada correctamente",
-                            });
-                        } else {
-                            return res.status(400).send({
-                                ok: false,
-                                message: "No se logro eliminar la habitacion",
-                            });
+                    Hotel.aggregate([{$match: {user_admin_hotel: userId}}]).exec((err,hotelFinded)=>{
+                        if(err){
+                            return res.status(500).send({message: "Error al buscar hotel"});
+                        }else if(hotelFinded){
+                            var hotelId = hotelFinded[0]._id;
+                            console.log(hotelId);
+                            User.findById(userId,(err,userFinded)=>{
+                                if(err){
+                                    return res.status(500).send({message: "Error al buscar usuario"});
+                                }else if(userFinded){
+                                    var password = userFinded.password;
+                                    bcrypt.compare(params.password,password,(err,checkPassword)=>{
+                                        if(err){
+                                            return res.status(500).send({message: "Error al comparar contraseñas"});
+                                        }else if(checkPassword){
+                                            var confirmationRoom = false;
+                                            hotelFinded[0].rooms.forEach(element => {
+                                                if(element == roomId){
+                                                    confirmationRoom = true;
+                                                }
+                                            });
+                                            if(confirmationRoom == true){
+                                                Hotel.findByIdAndUpdate(hotelId,{$pull: {rooms: roomId}},(err,hotelUpdated)=>{
+                                                    if(err){
+                                                        return res.status(500).send({message: "Error al eliminar de hotel"});
+                                                    }else if(hotelUpdated){
+                                                        console.log(hotelUpdated.rooms);
+                                                        Room.findByIdAndRemove(roomId, (err, roomRemoved) => {
+                                                            if (err) {
+                                                                return res
+                                                                    .status(500)
+                                                                    .send({ ok: false, message: "Error general" });
+                                                            } else if (roomRemoved) {
+                                                                return res.send({
+                                                                    ok: true,
+                                                                    message: "Habitacion eliminada correctamente"
+                                                                });
+                                                            } else {
+                                                                return res.status(400).send({
+                                                                    ok: false,
+                                                                    message: "No se logro eliminar la habitacion o ya fue eliminada",
+                                                                });
+                                                            }
+                                                        });
+                                                    }else{
+                                                        return res.status(404).send({message: "No se eliminó del hotel"});
+                                                    }
+                                                })
+                                            }else{
+                                                return res.status(401).send({message: "Esta habitación no pertenece a tu hotel"});
+                                            }
+                                        }else{
+                                            return res.send({message: "Contraseña incorrecta"});
+                                        }
+                                    })
+                                }else{
+                                    return res.status(404).send({message: "El usuario no existe"});
+                                }
+                            })
+                        }else{
+                            return res.status(404).send({message: "No es administrador de este hotel"});
                         }
-                    });
+                    })
                 }
             } else {
                 return res
                     .status(404)
-                    .send({ ok: false, message: "No existe la habitacion" });
+                    .send({ ok: false, message: "No existe la habitacion o ya fue eliminada" });
             }
         });
     }

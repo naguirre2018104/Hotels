@@ -26,7 +26,7 @@ api.post(
     "/updateRoom/:idR", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
     roomController.updateRoom
 );
-api.delete(
+api.put(
     "/deleteRoom/:idR", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
     roomController.deleteRoom
 );
