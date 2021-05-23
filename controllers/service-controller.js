@@ -13,17 +13,18 @@ function createServices(req, res) {
     if (!params.name && !params.price_service && !hotelId) {
         return res.send({ ok: false, message: "Ingrese sus datos obligatorios" });
     } else {
-        console.log(params.name);
-        Services.findOne({ name: params.name.toLowerCase() },
-            (err, serviceFound) => {
-                if (err) {
-                    return res.status(500).send({ ok: false, message: "Error general" });
-                } else if (serviceFound) {
-                    return res
-                        .status(400)
-                        .send({ ok: false, message: "Ya existe esta servicio" });
-                } else {
-                    services.name = params.name.toLowerCase();
+        Hotel.findById(hotelId, (err, hotelFound) => {
+            if (err) {
+                return res.status(500).send({ ok: false, message: "Error general" });
+            } else if (hotelFound) {
+                let serviceExists = false;
+                hotelFound.services.forEach((service) => {
+                    if (service.name.toLowerCase() == params.name.toLowerCase()) {
+                        serviceExists = true;
+                    }
+                });
+                if (!serviceExists) {
+                    services.name = params.name;
                     services.price_service = params.price_service;
                     services.save((err, serviceSaved) => {
                         if (err) {
@@ -59,9 +60,13 @@ function createServices(req, res) {
                             });
                         }
                     });
+                } else {
+                    return res.json({ ok: false, message: "El servicio ya existe" });
                 }
+            } else {
+                return res.json({ ok: false, message: "no existe ese hotel" });
             }
-        );
+        }).populate("services");
     }
 }
 

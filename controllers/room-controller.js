@@ -15,53 +15,62 @@ function createRoom(req, res) {
             .status(400)
             .send({ ok: false, message: "Ingrese los datos necesarios" });
     } else {
-        Room.findOne({ name: params.name }, (err, roomFound) => {
+        Hotel.findById(hotelId, (err, hotelFound) => {
             if (err) {
                 return res.status(500).send({ ok: false, message: "Error general" });
-            } else if (roomFound) {
-                return res
-                    .status(400)
-                    .send({ ok: false, message: "Ya existe esta habitacion" });
-            } else {
-                room.name = params.name;
-                room.price_for_day = params.price_for_day;
-                room.typeRoom = params.typeRoom;
-
-                room.save((err, roomSaved) => {
-                    if (err) {
-                        return res
-                            .status(500)
-                            .send({ ok: false, message: "Error general" });
-                    } else if (roomSaved) {
-                        Hotel.findByIdAndUpdate(
-                            hotelId, { $push: { rooms: roomSaved._id } }, { new: true },
-                            (err, hotelUpdate) => {
-                                if (err) {
-                                    return res
-                                        .status(500)
-                                        .send({ ok: false, message: "Error general" });
-                                } else if (hotelUpdate) {
-                                    return res.send({
-                                        ok: true,
-                                        message: "Habitacion creada correctamente",
-                                        roomSaved,
-                                    });
-                                } else {
-                                    return res.status(404).send({
-                                        ok: false,
-                                        message: "No se guardo correctamente la habitacion del hotel",
-                                    });
-                                }
-                            }
-                        );
-                    } else {
-                        return res
-                            .status(403)
-                            .send({ ok: false, message: "No se logro crear la habitacion" });
+            } else if (hotelFound) {
+                let roomExists = false;
+                hotelFound.rooms.forEach((room) => {
+                    if (room.name.toLowerCase() == params.name.toLowerCase()) {
+                        roomExists = true;
                     }
                 });
+
+                if (!roomExists) {
+                    room.name = params.name;
+                    room.price_for_day = params.price_for_day;
+                    room.typeRoom = params.typeRoom;
+                    room.save((err, roomSaved) => {
+                        if (err) {
+                            return res
+                                .status(500)
+                                .send({ ok: false, message: "Error general" });
+                        } else if (roomSaved) {
+                            Hotel.findByIdAndUpdate(
+                                hotelId, { $push: { rooms: roomSaved._id } }, { new: true },
+                                (err, hotelUpdate) => {
+                                    if (err) {
+                                        return res
+                                            .status(500)
+                                            .send({ ok: false, message: "Error general" });
+                                    } else if (hotelUpdate) {
+                                        return res.send({
+                                            ok: true,
+                                            message: "Habitacion creada correctamente",
+                                            roomSaved,
+                                        });
+                                    } else {
+                                        return res.status(404).send({
+                                            ok: false,
+                                            message: "No se guardo correctamente la habitacion del hotel",
+                                        });
+                                    }
+                                }
+                            );
+                        } else {
+                            return res.status(403).send({
+                                ok: false,
+                                message: "No se logro crear la habitacion",
+                            });
+                        }
+                    });
+                } else {
+                    return res.json({ ok: false, message: "La habitacion ya existe" });
+                }
+            } else {
+                return res.json({ ok: false, message: "no existe ese hotel" });
             }
-        });
+        }).populate("rooms");
     }
 }
 
@@ -293,23 +302,27 @@ function getRoomsByHotelAdmin(req, res) {
     }).populate("rooms");
 }
 
-function getRoomsEvent(req,res){
+function getRoomsEvent(req, res) {
     var userId = req.user.sub;
-    Hotel.findOne({user_admin_hotel: userId}).populate("rooms").exec((err,hotelFinded)=>{
-        if(err){
-            return res.status(500).send({message: "Error al buscar hotel"});
-        }else if(hotelFinded){
-            var rooms = [];
-            hotelFinded.rooms.forEach(element =>{
-                if(element.typeRoom != "Habitación"){
-                    rooms.push(element);
-                }
-            })
-            return res.send({ok: true, message: "Salones de eventos: ",rooms});
-        }else{
-            return res.status(404).send({message: "No es administrador de ningún hotel"});
-        }
-    })
+    Hotel.findOne({ user_admin_hotel: userId })
+        .populate("rooms")
+        .exec((err, hotelFinded) => {
+            if (err) {
+                return res.status(500).send({ message: "Error al buscar hotel" });
+            } else if (hotelFinded) {
+                var rooms = [];
+                hotelFinded.rooms.forEach((element) => {
+                    if (element.typeRoom != "Habitación") {
+                        rooms.push(element);
+                    }
+                });
+                return res.send({ ok: true, message: "Salones de eventos: ", rooms });
+            } else {
+                return res
+                    .status(404)
+                    .send({ message: "No es administrador de ningún hotel" });
+            }
+        });
 }
 
 module.exports = {
@@ -320,5 +333,5 @@ module.exports = {
     deleteRoom,
     getRoomByAdminHotel,
     getRoomsByHotelAdmin,
-    getRoomsEvent
+    getRoomsEvent,
 };
