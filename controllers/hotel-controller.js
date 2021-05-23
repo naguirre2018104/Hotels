@@ -175,44 +175,48 @@ function deleteHotel(req, res) {
 }
 
 function getHotelsnames(req, res) {
-    Hotel.find().exec((err, hotels) => {
-        if (err) {
-            return res.json({ ok: false, message: "Error general" });
-        } else if (hotels) {
-            var hotelsGraphic = [];
+    Hotel.find()
+        .sort({ count_reservations: -1 })
+        .exec((err, hotels) => {
+            if (err) {
+                return res.json({ ok: false, message: "Error general" });
+            } else if (hotels) {
+                var hotelsGraphic = [];
 
-            hotels.forEach((hotelItem) => {
-                hotelsGraphic.push({
-                    hotelName: hotelItem.name,
-                    count_reservations: hotelItem.count_reservations,
+                hotels.forEach((hotelItem) => {
+                    hotelsGraphic.push({
+                        hotelName: hotelItem.name,
+                        count_reservations: hotelItem.count_reservations,
+                    });
                 });
-            });
 
-            return res.json({ ok: true, message: "Datos hotel", hotelsGraphic });
-        } else {
-            return res.json({ ok: false, message: "No existen hoteles" });
-        }
-    });
+                return res.json({ ok: true, message: "Datos hotel", hotelsGraphic });
+            } else {
+                return res.json({ ok: false, message: "No existen hoteles" });
+            }
+        });
 }
 
 function getHotelBydAdminHotelID(req, res) {
     let userAdminH = req.user.sub;
 
     if (userAdminH) {
-        Hotel.aggregate([{$match: {user_admin_hotel: userAdminH}}]).exec((err, hotel) => {
-            if (err) {
-                return res.json({ ok: false, message: "Error general" });
-            } else if (hotel) {
-                return res.send({
-                    ok: true,
-                    message: "Hotel del usuario admin",
-                    hotel
-                });
-            } else {
-                console.log(hotel);
-                return res.json({ ok: false, message: "No existen hoteles" });
+        Hotel.aggregate([{ $match: { user_admin_hotel: userAdminH } }]).exec(
+            (err, hotel) => {
+                if (err) {
+                    return res.json({ ok: false, message: "Error general" });
+                } else if (hotel) {
+                    return res.send({
+                        ok: true,
+                        message: "Hotel del usuario admin",
+                        hotel,
+                    });
+                } else {
+                    console.log(hotel);
+                    return res.json({ ok: false, message: "No existen hoteles" });
+                }
             }
-        });
+        );
     } else {
         return res.json({ ok: false, message: "Ingrese los datos" });
     }
