@@ -113,7 +113,7 @@ function login(req, res) {
                         } else if (checkPassword) {
                             if (params.gettoken) {
                                 if (userFinded.role == "ROLE_HOTEL") {
-                                    Hotel.findOne({ user_admin_hotel: userFinded._id }).exec(
+                                    Hotel.findOne({ user_admin_hotel: userFinded._id} ).exec(
                                         (err, hotelFound) => {
                                             if (err) {
                                                 return res

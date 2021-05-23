@@ -15,7 +15,7 @@ function createRoom(req, res) {
             .status(400)
             .send({ ok: false, message: "Ingrese los datos necesarios" });
     } else {
-        Room.findOne({ name: params.name.toLowerCase() }, (err, roomFound) => {
+        Room.findOne({ name: params.name }, (err, roomFound) => {
             if (err) {
                 return res.status(500).send({ ok: false, message: "Error general" });
             } else if (roomFound) {
@@ -173,14 +173,14 @@ function deleteRoom(req, res) {
                         message: "No puede eliminar esta habitacion, esta ocupada",
                     });
                 } else {
-                    Hotel.aggregate([{ $match: { user_admin_hotel: userId } }]).exec(
+                    Hotel.findOne({ user_admin_hotel: userId }).exec(
                         (err, hotelFinded) => {
                             if (err) {
                                 return res
                                     .status(500)
                                     .send({ message: "Error al buscar hotel" });
                             } else if (hotelFinded) {
-                                var hotelId = hotelFinded[0]._id;
+                                var hotelId = hotelFinded._id;
                                 console.log(hotelId);
                                 User.findById(userId, (err, userFinded) => {
                                     if (err) {
@@ -199,7 +199,7 @@ function deleteRoom(req, res) {
                                                         .send({ message: "Error al comparar contraseñas" });
                                                 } else if (checkPassword) {
                                                     var confirmationRoom = false;
-                                                    hotelFinded[0].rooms.forEach((element) => {
+                                                    hotelFinded.rooms.forEach((element) => {
                                                         if (element == roomId) {
                                                             confirmationRoom = true;
                                                         }
