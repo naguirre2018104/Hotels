@@ -1,50 +1,67 @@
 "use strict";
 
 const Event = require("./../models/event-model");
+const Hotel = require("./../models/hotel-model");
 
 function createEvent(req, res) {
     let event = new Event();
     let params = req.body;
+    var userId = req.user.sub;
 
-    if (!params.name) {
+    if (!params.name || !params.price_event) {
         return res
             .status(400)
             .send({ ok: false, message: "Ingrese los datos necesarios" });
     } else {
-        Event.findOne({ name: params.name.toLowerCase() }, (err, eventFound) => {
-            if (err) {
-                return res.status(500).send({ ok: false, message: "Error general" });
-            } else if (eventFound) {
-                return res
-                    .status(400)
-                    .send({ ok: false, message: "Ya existe este evento" });
-            } else {
-                event.name = params.name.toLowerCase();
-                event.start_date = params.start_date;
-                event.end_date = params.end_date;
-                event.type_of_event = params.type_of_event;
-                event.price_event = params.price_event;
-
-                event.save((err, eventSaved) => {
-                    if (err) {
-                        return res
-                            .status(500)
-                            .send({ ok: false, message: "Error general" });
-                    } else if (eventSaved) {
-                        return res.send({
-                            ok: true,
-                            message: "Evento creado con exito",
-                            eventSaved,
-                        });
-                    } else {
-                        return res.status(404).send({
-                            ok: false,
-                            message: "No se guardo correctamente el evento",
-                        });
+        Hotel.findOne({user_admin_hotel: userId}).populate("events").exec((err,hotelFinded)=>{
+            if(err){
+                return res.status(500).send({message: "Error al buscar hotel"});
+            }else if(hotelFinded){
+                let hotelId = hotelFinded._id;
+                var validateEvent = false;
+                hotelFinded.events.forEach(element =>{
+                    if(element.name = params.name){
+                        validateEvent = true;
                     }
-                });
+                })
+                if(validateEvent == false){
+                    event.name = params.name;
+                    event.type_of_event = params.type_of_event;
+                    event.price_event = params.price_event;
+    
+                    event.save((err, eventSaved) => {
+                        if (err) {
+                            return res
+                                .status(500)
+                                .send({ ok: false, message: "Error general" });
+                        } else if (eventSaved) { 
+                            Hotel.findByIdAndUpdate(hotelId,{$push:{events: eventSaved}},{new: true},(err,hotelUpdated)=>{
+                                if(err){
+                                    return res.status(500).send({message: "Error al intentar agregar evento"});
+                                }else if(hotelUpdated){
+                                    return res.send({
+                                        ok: true,
+                                        message: "Evento creado y agregado con éxito",
+                                        hotelUpdated
+                                    });
+                                }else{
+                                    return res.status(500).send({message: "No se agregó el evento al hotel"});
+                                }
+                            })  
+                        } else {
+                            return res.status(404).send({
+                                ok: false,
+                                message: "No se guardo correctamente el evento",
+                            });
+                        }
+                    })
+                }else{
+                    return res.send({ok: false, message: "El evento ya existe en el hotel"});
+                }
+            }else{
+                return res.status(404).send({message: "Hotel inexistente"});
             }
-        });
+        })
     }
 }
 

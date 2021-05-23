@@ -10,7 +10,7 @@ function createRoom(req, res) {
     let hotelId = req.params.idH;
     let params = req.body;
 
-    if (!params.name && !params.price_for_day) {
+    if (!params.name && !params.price_for_day && !params.typeRoom) {
         return res
             .status(400)
             .send({ ok: false, message: "Ingrese los datos necesarios" });
@@ -25,6 +25,7 @@ function createRoom(req, res) {
             } else {
                 room.name = params.name;
                 room.price_for_day = params.price_for_day;
+                room.typeRoom = params.typeRoom;
 
                 room.save((err, roomSaved) => {
                     if (err) {
@@ -292,6 +293,25 @@ function getRoomsByHotelAdmin(req, res) {
     }).populate("rooms");
 }
 
+function getRoomsEvent(req,res){
+    var userId = req.user.sub;
+    Hotel.findOne({user_admin_hotel: userId}).populate("rooms").exec((err,hotelFinded)=>{
+        if(err){
+            return res.status(500).send({message: "Error al buscar hotel"});
+        }else if(hotelFinded){
+            var rooms = [];
+            hotelFinded.rooms.forEach(element =>{
+                if(element.typeRoom != "Habitación"){
+                    rooms.push(element);
+                }
+            })
+            return res.send({ok: true, message: "Salones de eventos: ",rooms});
+        }else{
+            return res.status(404).send({message: "No es administrador de ningún hotel"});
+        }
+    })
+}
+
 module.exports = {
     createRoom,
     getRooms,
@@ -300,4 +320,5 @@ module.exports = {
     deleteRoom,
     getRoomByAdminHotel,
     getRoomsByHotelAdmin,
+    getRoomsEvent
 };

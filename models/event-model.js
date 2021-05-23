@@ -7,7 +7,7 @@ var eventSchema = Schema({
     name: String,
     // start_date: Date,
     // end_date: Date,
-    type_of_event: String,
+    type_of_event: {type: String, default: "Private"},
     price_event: Number,
 });
 

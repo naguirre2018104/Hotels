@@ -31,5 +31,6 @@ api.put(
     roomController.deleteRoom
 );
 api.get("/getRoomsByHotelAdmin",[mdAuth.ensureUser, mdAuth.ensureAdminHotel],roomController.getRoomsByHotelAdmin);
+api.get("/getRoomsEvent",[mdAuth.ensureUser, mdAuth.ensureAdminHotel],roomController.getRoomsEvent);
 
 module.exports = api;
