@@ -278,47 +278,36 @@ function cancelReservation(req, res) {
 }
 
 function getReservationsByHotelAdmin(req, res) {
-    var userId = req.user.sub;
-    User.findById(userId, (err, userFinded) => {
-        if (err) {
-            return res.status(500).send({ message: "Error al verificar usuario" });
-        } else if (userFinded) {
-            Hotel.aggregate([{
-                $match: { user_admin_hotel: userId },
-            }, ]).exec((err, hotelFinded) => {
-                console.log(hotelFinded);
-                var hotelId = hotelFinded[0]._id;
-                if (err) {
-                    return res.status(500).send({ message: "Error al buscar hotel" });
-                } else if (hotelFinded && hotelFinded[0]._id != undefined) {
-                    Reservation.aggregate([{
-                        $match: { hotel: hotelId },
-                    }, ]).exec((err, reservations) => {
+    let userId = req.user.sub;
+    if (!userId) {
+        return res.json({ ok: false, message: "Error, envie el id del usuario" });
+    } else {
+        Hotel.findOne({ user_admin_hotel: userId }, (err, hotelFound) => {
+            if (err) {
+                return res.status(500).send({ ok: false, message: "Error general" });
+            } else if (hotelFound) {
+                Reservation.find({ hotel: hotelFound._id },
+                    (err, reservationsFound) => {
                         if (err) {
                             return res
                                 .status(500)
-                                .send({ message: "Error al obtener reservaciones" });
-                        } else if (reservations) {
-                            return res.send({
-                                message: "Todas las reservaciones:",
-                                reservations,
+                                .send({ ok: false, message: "Error general" });
+                        } else if (reservationsFound) {
+                            return res.json({
+                                ok: true,
+                                message: "Reservaciones encontradas",
+                                reservationsFound,
                             });
                         } else {
-                            return res.send({
-                                message: "No hay reservaciones en este hotel",
-                            });
+                            return res.json({ ok: true, message: "No hay reservaciones" });
                         }
-                    });
-                } else {
-                    return res
-                        .status(404)
-                        .send({ message: "No es administrador de ningún hotel" });
-                }
-            });
-        } else {
-            return res.status(404).send({ message: "Usuario inexistente" });
-        }
-    });
+                    }
+                );
+            } else {
+                return res.json({ ok: false, message: "No existe el hotel" });
+            }
+        });
+    }
 }
 
 module.exports = {

@@ -38,5 +38,9 @@ api.put(
     "/createServiceByHotelAdmin", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
     serviceController.createServiceByHotelAdmin
 );
+api.get(
+    "/getServicesHotel", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
+    serviceController.getServicesHotel
+);
 
 module.exports = api;

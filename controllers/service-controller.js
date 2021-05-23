@@ -23,7 +23,7 @@ function createServices(req, res) {
                         .status(400)
                         .send({ ok: false, message: "Ya existe esta servicio" });
                 } else {
-                    services.name = params.name.toLowerCase;
+                    services.name = params.name.toLowerCase();
                     services.price_service = params.price_service;
                     services.save((err, serviceSaved) => {
                         if (err) {
@@ -369,6 +369,27 @@ function createServiceByHotelAdmin(req, res) {
     }
 }
 
+function getServicesHotel(req, res) {
+    let userId = req.user.sub;
+    if (!userId) {
+        return res.json({ ok: false, message: "Ingrese el id del usuario" });
+    } else {
+        Hotel.findOne({ user_admin_hotel: userId }, (err, hotelFound) => {
+            if (err) {
+                return res.status(500).send({ ok: false, message: "Error general" });
+            } else if (hotelFound) {
+                return res.json({
+                    ok: true,
+                    message: "Servicios por hotel",
+                    services: hotelFound.services,
+                });
+            } else {
+                return res.json({ ok: false, message: "No existe el hotel" });
+            }
+        }).populate("services");
+    }
+}
+
 module.exports = {
     createServices,
     deleteService,
@@ -377,4 +398,5 @@ module.exports = {
     updateService,
     setServiceReservation,
     createServiceByHotelAdmin,
+    getServicesHotel,
 };
