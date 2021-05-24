@@ -10,40 +10,71 @@ function createHotel(req, res) {
     let params = req.body;
 
     if ((params.user_admin_hotel, params.name, params.address, params.country)) {
-        User.findOne({ _id: params.user_admin_hotel, role: "ROLE_HOTEL" },
-            (err, userExists) => {
+        Hotel.findOne({ user_admin_hotel: params.user_admin_hotel },
+            (err, hotelFound) => {
                 if (err) {
-                    return res
-                        .status(500)
-                        .send({ ok: false, message: "Error general buscando al usuario" });
-                } else if (userExists) {
-                    hotel.user_admin_hotel = params.user_admin_hotel;
-                    hotel.name = params.name;
-                    hotel.address = params.address;
-                    hotel.country = params.country;
-
-                    hotel.save((err, hotelSaved) => {
-                        if (err) {
-                            return res.status(500).send({
-                                ok: false,
-                                message: "Error general al guardar el hotel",
-                            });
-                        } else if (hotelSaved) {
-                            return res.send({
-                                ok: false,
-                                message: "Hotel guardado correctamente",
-                                hotelSaved,
-                            });
-                        } else {
-                            return res
-                                .status(400)
-                                .send({ ok: false, message: "No se pudo guardar el hotel" });
-                        }
+                    return res.status(500).send({ ok: false, message: "Erro general" });
+                } else if (hotelFound) {
+                    return res.json({
+                        ok: false,
+                        message: "Elija otro usuario administrador",
                     });
                 } else {
-                    return res
-                        .status(404)
-                        .send({ ok: false, message: "No existe el usuario admin" });
+                    User.findOne({ _id: params.user_admin_hotel, role: "ROLE_HOTEL" },
+                        (err, userExists) => {
+                            if (err) {
+                                return res.status(500).send({
+                                    ok: false,
+                                    message: "Error general buscando al usuario",
+                                });
+                            } else if (userExists) {
+                                hotel.user_admin_hotel = params.user_admin_hotel;
+                                hotel.name = params.name;
+                                hotel.address = params.address;
+                                hotel.country = params.country;
+
+                                hotel.save((err, hotelSaved) => {
+                                    if (err) {
+                                        return res.status(500).send({
+                                            ok: false,
+                                            message: "Error general al guardar el hotel",
+                                        });
+                                    } else if (hotelSaved) {
+                                        Hotel.find({})
+                                            .populate()
+                                            .exec((errl, hotels) => {
+                                                if (err) {
+                                                    return res
+                                                        .status(500)
+                                                        .send({ ok: false, message: "Error general" });
+                                                } else if (hotels) {
+                                                    return res.send({
+                                                        ok: false,
+                                                        message: "Hotel guardado correctamente",
+                                                        hotels,
+                                                        hotelSaved,
+                                                    });
+                                                } else {
+                                                    return res.json({
+                                                        ok: false,
+                                                        message: "Error al retornar hoteles",
+                                                    });
+                                                }
+                                            });
+                                    } else {
+                                        return res.status(400).send({
+                                            ok: false,
+                                            message: "No se pudo guardar el hotel",
+                                        });
+                                    }
+                                });
+                            } else {
+                                return res
+                                    .status(404)
+                                    .send({ ok: false, message: "No existe el usuario admin" });
+                            }
+                        }
+                    );
                 }
             }
         );
@@ -57,6 +88,9 @@ function createHotel(req, res) {
 function getHotels(req, res) {
     Hotel.find({})
         .populate("user_admin_hotel")
+        .populate("rooms")
+        .populate("services")
+        .populate("events")
         .exec((err, users) => {
             if (err) {
                 return res.status(500).send({ ok: false, message: "Error general" });
@@ -222,6 +256,37 @@ function getHotelBydAdminHotelID(req, res) {
     }
 }
 
+function getHotelsRecomendations(req, res) {
+    Hotel.find({})
+        .populate()
+        .exec((err, hotels) => {
+            if (err) {
+                return res.status(5000).send({ ok: false, message: "Error general" });
+            } else if (hotels) {
+                return res.json({ ok: true, message: "Hoteles encontrados", hotels });
+            } else {
+                return res.json({ ok: false, message: "No existen hoteles" });
+            }
+        });
+}
+
+function getRoomsByHotel(req, res) {
+    let idH = req.params.idH;
+    Hotel.findOne({ _id: idH }, (err, hotelFound) => {
+        if (err) {
+            res.status(500).send({ message: "Error al buscar hotel" });
+            console.log(err);
+        } else if (hotelFound) {
+            return res.json(hotelFound.rooms);
+        } else {
+            return res.json({
+                ok: false,
+                message: "El Hotel no tiene habitaciones",
+            });
+        }
+    }).populate("rooms");
+}
+
 module.exports = {
     createHotel,
     getHotels,
@@ -230,4 +295,6 @@ module.exports = {
     deleteHotel,
     getHotelsnames,
     getHotelBydAdminHotelID,
+    getHotelsRecomendations,
+    getRoomsByHotel,
 };

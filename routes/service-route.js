@@ -11,10 +11,7 @@ api.post(
     serviceController.createServices
 );
 
-api.get(
-    "/getServices", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
-    serviceController.getServices
-);
+api.get("/getServices", [mdAuth.ensureUser], serviceController.getServices);
 
 api.get(
     "/getService/:id", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],

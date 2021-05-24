@@ -32,4 +32,11 @@ api.get(
     hotelController.getHotelBydAdminHotelID
 );
 
+api.get("/getHotelsRecomendations", hotelController.getHotelsRecomendations);
+
+api.get(
+    "/getRoomsByHotel/:idH", [mdAuth.ensureUser],
+    hotelController.getRoomsByHotel
+);
+
 module.exports = api;

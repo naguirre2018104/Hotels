@@ -10,10 +10,7 @@ api.post(
     "/createRoom/:idH", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
     roomController.createRoom
 );
-api.get(
-    "/getRooms", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
-    roomController.getRooms
-);
+api.get("/getRooms", [mdAuth.ensureUser], roomController.getRooms);
 api.get(
     "/getRoom/:idR", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
     roomController.getRoom
@@ -30,7 +27,13 @@ api.put(
     "/deleteRoom/:idR", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
     roomController.deleteRoom
 );
-api.get("/getRoomsByHotelAdmin",[mdAuth.ensureUser, mdAuth.ensureAdminHotel],roomController.getRoomsByHotelAdmin);
-api.get("/getRoomsEvent",[mdAuth.ensureUser, mdAuth.ensureAdminHotel],roomController.getRoomsEvent);
+api.get(
+    "/getRoomsByHotelAdmin", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
+    roomController.getRoomsByHotelAdmin
+);
+api.get(
+    "/getRoomsEvent", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
+    roomController.getRoomsEvent
+);
 
 module.exports = api;

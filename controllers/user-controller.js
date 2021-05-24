@@ -99,63 +99,67 @@ function login(req, res) {
 
     if (params.username && params.password) {
         User.findOne({ username: params.username }, (err, userFinded) => {
-            if (err) {
-                return res.status(500).send({ message: "Error al buscar usuario" });
-            } else if (userFinded) {
-                bcrypt.compare(
-                    params.password,
-                    userFinded.password,
-                    (err, checkPassword) => {
-                        if (err) {
-                            return res
-                                .status(500)
-                                .send({ message: "Error al comparar contraseñas" });
-                        } else if (checkPassword) {
-                            if (params.gettoken) {
-                                if (userFinded.role == "ROLE_HOTEL") {
-                                    Hotel.findOne({ user_admin_hotel: userFinded._id} ).exec(
-                                        (err, hotelFound) => {
-                                            if (err) {
-                                                return res
-                                                    .status(500)
-                                                    .send({ message: "Error al buscar hotel" });
-                                            } else if (hotelFound) {
-                                                return res.send({
-                                                    token: jwt.createToken(userFinded),
-                                                    userFinded,
-                                                    hotelFound,
-                                                });
-                                            } else {
-                                                return res.send({
-                                                    ok: false,
-                                                    message: "No tiene autorizado iniciar sesion",
-                                                });
-                                            }
-                                        }
-                                    );
-                                } else if (userFinded.role == "ROLE_ADMIN") {
-                                    return res.send({
-                                        token: jwt.createToken(userFinded),
-                                        userFinded,
-                                    });
+                if (err) {
+                    return res.status(500).send({ message: "Error al buscar usuario" });
+                } else if (userFinded) {
+                    bcrypt.compare(
+                        params.password,
+                        userFinded.password,
+                        (err, checkPassword) => {
+                            if (err) {
+                                return res
+                                    .status(500)
+                                    .send({ message: "Error al comparar contraseñas" });
+                            } else if (checkPassword) {
+                                if (params.gettoken) {
+                                    if (userFinded.role == "ROLE_HOTEL") {
+                                        Hotel.findOne({ user_admin_hotel: userFinded._id })
+                                            .populate("services")
+                                            .populate("events")
+                                            .populate("rooms")
+                                            .exec((err, hotelFound) => {
+                                                if (err) {
+                                                    return res
+                                                        .status(500)
+                                                        .send({ message: "Error al buscar hotel" });
+                                                } else if (hotelFound) {
+                                                    return res.send({
+                                                        token: jwt.createToken(userFinded),
+                                                        userFinded,
+                                                        hotelFound,
+                                                    });
+                                                } else {
+                                                    return res.send({
+                                                        ok: false,
+                                                        message: "No tiene autorizado iniciar sesion",
+                                                    });
+                                                }
+                                            });
+                                    } else if (userFinded.role == "ROLE_ADMIN") {
+                                        return res.send({
+                                            token: jwt.createToken(userFinded),
+                                            userFinded,
+                                        });
+                                    } else {
+                                        return res.send({
+                                            token: jwt.createToken(userFinded),
+                                            userFinded,
+                                        });
+                                    }
                                 } else {
-                                    return res.send({
-                                        token: jwt.createToken(userFinded),
-                                        userFinded,
-                                    });
+                                    return res.send({ message: "Usuario logeado", userFinded });
                                 }
                             } else {
-                                return res.send({ message: "Usuario logeado", userFinded });
+                                return res.send({ message: "Contraseña incorrecta" });
                             }
-                        } else {
-                            return res.send({ message: "Contraseña incorrecta" });
                         }
-                    }
-                );
-            } else {
-                return res.send({ message: "Usuario inexistente" });
-            }
-        });
+                    );
+                } else {
+                    return res.send({ message: "Usuario inexistente" });
+                }
+            })
+            .populate("reservations")
+            .populate("history_hotels");
     } else {
         return res.status(401).send({ message: "Ingrese los datos mínimos" });
     }
@@ -373,10 +377,24 @@ function createUserByAdmin(req, res) {
                                     .status(500)
                                     .send({ message: "Error al guardar usuario" });
                             } else if (userSaved) {
-                                return res.send({
-                                    message: "Usuario agregado exitosamente",
-                                    userSaved,
-                                });
+                                User.find({})
+                                    .populate()
+                                    .exec((err, users) => {
+                                        if (err) {
+                                            return res.status(500).send({ message: "Error general" });
+                                        } else if (users) {
+                                            return res.send({
+                                                message: "Usuario agregado exitosamente",
+                                                userSaved,
+                                                users,
+                                            });
+                                        } else {
+                                            return res.json({
+                                                ok: false,
+                                                message: "Error. No se encontraron usuarios.",
+                                            });
+                                        }
+                                    });
                             } else {
                                 return res
                                     .status(500)
@@ -442,6 +460,23 @@ function getManagements(req, res) {
     });
 }
 
+function getRoomsByHotel(req, res) {
+    let idH = req.params.idH;
+    Hotel.findOne({ _id: idH }, (err, hotelFound) => {
+        if (err) {
+            res.status(500).send({ message: "Error al buscar hotel" });
+            console.log(err);
+        } else if (hotelFound) {
+            return res.json(hotelFound.rooms);
+        } else {
+            return res.json({
+                ok: false,
+                message: "El Hotel no tiene habitaciones",
+            });
+        }
+    }).populate("rooms");
+}
+
 module.exports = {
     prueba,
     userAdmin,
@@ -454,4 +489,5 @@ module.exports = {
     createUserByAdmin,
     getManagements,
     getUserByHotelAdmin,
+    getRoomsByHotel,
 };
