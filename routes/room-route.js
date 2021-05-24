@@ -15,7 +15,7 @@ api.get(
     roomController.getRooms
 );
 api.get(
-    "/getRoom/:idR", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
+    "/getRoom/:idR", [mdAuth.ensureUser],
     roomController.getRoom
 );
 api.get(

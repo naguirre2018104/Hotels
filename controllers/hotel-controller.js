@@ -222,6 +222,20 @@ function getHotelBydAdminHotelID(req, res) {
     }
 }
 
+function getHotelsVisited(req,res){
+    var userId = req.user.sub;
+
+    User.findById(userId).populate("history_hotels").exec((err,userFinded)=>{
+        if(err){
+            return res.status(500).send({message: "Error al buscar usuario"});
+        }else if(userFinded){
+            return res.send({message: "Hoteles",userFinded});
+        }else{
+            return res.send({message: "Usuario inexistente"});
+        }
+    })
+}
+
 module.exports = {
     createHotel,
     getHotels,
@@ -230,4 +244,5 @@ module.exports = {
     deleteHotel,
     getHotelsnames,
     getHotelBydAdminHotelID,
+    getHotelsVisited
 };

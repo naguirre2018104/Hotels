@@ -19,5 +19,9 @@ api.get(
     "/getReservationsByHotelAdmin", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
     reservationController.getReservationsByHotelAdmin
 );
+api.get(
+    "/getReservationsByUser", [mdAuth.ensureUser],
+    reservationController.getReservationsByUser
+);
 
 module.exports = api;

@@ -92,7 +92,7 @@ function getRoom(req, res) {
     if (!roomId) {
         return res.status(400).send({ ok: false, message: "Error, no RoomID" });
     } else {
-        Room.findId(roomId).exec((err, rooms) => {
+        Room.findById(roomId).exec((err, rooms) => {
             if (err) {
                 return res.status(500).send({ ok: false, message: "Error general" });
             } else if (rooms) {

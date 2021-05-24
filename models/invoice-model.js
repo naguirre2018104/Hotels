@@ -11,7 +11,7 @@ var invoiceSchema = Schema({
     hotel: {type: Schema.ObjectId, ref:"hotel"},
     room: {type: Schema.ObjectId, ref:"room"},
     services: [{type: Schema.ObjectId, ref:"service"}],
-    events: [{type: Schema.ObjectId, ref:"event"}]
+    events: {type: Schema.ObjectId, ref:"event"}
 });
 
 module.exports = mongoose.model("invoice",invoiceSchema);

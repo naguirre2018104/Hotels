@@ -310,9 +310,23 @@ function getReservationsByHotelAdmin(req, res) {
     }
 }
 
+function getReservationsByUser(req,res){
+    let userId = req.user.sub;
+    User.findById(userId).populate("reservations").exec((err,userFinded)=>{
+        if(err){
+            return res.status(500).send({message: "Error al obtener reservaciones"});
+        }else if(userFinded){
+            return res.send({message: "Reservaciones:", userFinded});
+        }else{
+            return res.send({message: "No hay reservaciones"});
+        }
+    })
+}
+
 module.exports = {
     prueba,
     setReservation,
     cancelReservation,
     getReservationsByHotelAdmin,
+    getReservationsByUser
 };

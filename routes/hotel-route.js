@@ -12,7 +12,7 @@ api.post(
 );
 api.get("/getHotels", hotelController.getHotels);
 api.get(
-    "/getHotel/:idH", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
+    "/getHotel/:idH", [mdAuth.ensureUser],
     hotelController.getHotel
 );
 api.post(
@@ -30,6 +30,10 @@ api.get(
 api.get(
     "/getHotelBydAdminHotelID", [mdAuth.ensureUser, mdAuth.ensureAdminOrAdminHotel],
     hotelController.getHotelBydAdminHotelID
+);
+api.get(
+    "/getHotelsVisited", [mdAuth.ensureUser],
+    hotelController.getHotelsVisited
 );
 
 module.exports = api;
