@@ -312,7 +312,7 @@ function getRoomsEvent(req, res) {
             } else if (hotelFinded) {
                 var rooms = [];
                 hotelFinded.rooms.forEach((element) => {
-                    if (element.typeRoom != "Habitación") {
+                    if (element.typeRoom != "Habitación Dormitorio") {
                         rooms.push(element);
                     }
                 });

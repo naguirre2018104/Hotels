@@ -8,7 +8,7 @@ var roomSchema = Schema({
     available: { type: Boolean, default: true },
     price_for_day: Number,
     available_day: { type: Date, default: null},
-    typeRoom: {type: String, default: "Habitación"}
+    typeRoom: {type: String, default: "Habitación Dormitorio"}
 });
 
 module.exports = mongoose.model("room", roomSchema);

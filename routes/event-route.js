@@ -25,7 +25,7 @@ api.put(
     eventController.updateEvent
 );
 
-api.delete(
+api.put(
     "/deleteEvent/:id", [mdAuth.ensureUser, mdAuth.ensureAdminHotel],
     eventController.deleteEvent
 );
