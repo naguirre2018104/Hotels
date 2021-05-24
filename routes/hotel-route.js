@@ -36,4 +36,11 @@ api.get(
     hotelController.getHotelsVisited
 );
 
+api.get("/getHotelsRecomendations", hotelController.getHotelsRecomendations);
+
+api.get(
+    "/getRoomsByHotel/:idH", [mdAuth.ensureUser],
+    hotelController.getRoomsByHotel
+);
+
 module.exports = api;

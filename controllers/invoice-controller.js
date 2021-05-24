@@ -46,7 +46,7 @@ function createInvoice(req,res){
                                             invoice.hotel = reservationUpdated.hotel;
                                             invoice.room = reservationUpdated.room;
                                             invoice.services = reservationUpdated.services;
-                                            if(reservationUpdated.events.length > 0){
+                                            if(reservationUpdated.events != undefined){
                                                 invoice.events = reservationUpdated.events;
                                             }
                                             invoice.save((err,invoiceSaved)=>{

@@ -16,6 +16,8 @@ function setReservation(req, res) {
     var userId = req.params.idU;
     var params = req.body;
 
+    console.log(params);
+
     if (params.start_date && params.end_date) {
         var start = moment(params.start_date, "YYYY-MM-DD");
         var end = moment(params.end_date, "YYYY-MM-DD");
@@ -63,6 +65,11 @@ function setReservation(req, res) {
                                                     reservation.user = userId;
                                                     reservation.hotel = hotelId;
                                                     reservation.room = roomId;
+
+                                                    params.services.forEach((service) => {
+                                                        reservation.services.push(service);
+                                                    });
+
                                                     reservation.save((err, reservationSaved) => {
                                                         if (err) {
                                                             return res.status(500).send({
